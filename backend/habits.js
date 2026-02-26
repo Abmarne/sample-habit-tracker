@@ -38,10 +38,7 @@ function getHabit(id) {
 
 /**
  * Mark a habit as done for today.
- *
- * BUG #1: There is no guard against marking the same habit done more than
- * once on the same calendar day.  Every call pushes a new completion and
- * awards 10 points, so a rapid double-click in the UI will award 20 points.
+ * A habit can only be marked done once per calendar day.
  */
 function markDone(id) {
   const habit = habits[id];
@@ -49,10 +46,17 @@ function markDone(id) {
     throw new Error("Habit not found");
   }
 
-  const today = new Date().toISOString();
+  const todayStr = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
 
-  // BUG #1 — no duplicate check; points are always awarded
-  habit.completions.push(today);
+  // Deduplicate: skip if already completed today
+  const alreadyDone = habit.completions.some(
+    (c) => c.slice(0, 10) === todayStr
+  );
+  if (alreadyDone) {
+    return habit;
+  }
+
+  habit.completions.push(new Date().toISOString());
   habit.points += 10;
   habit.streak = calculateStreak(habit.completions);
 
@@ -61,33 +65,24 @@ function markDone(id) {
 
 /**
  * Calculate the current streak of consecutive days.
- *
- * BUG #2: Dates are compared using the full ISO string (which includes the
- * time component) rather than normalising each date to UTC midnight.  This
- * means that a completion recorded at 23:59 UTC and one recorded at 00:01 UTC
- * the next day may be treated as the same calendar day *or* may be seen as
- * two days apart, depending on the runtime timezone offset.
+ * Dates are normalised to UTC calendar days to avoid timezone issues.
  */
 function calculateStreak(completions) {
   if (completions.length === 0) return 0;
 
-  // Sort descending — newest first
-  const sorted = [...completions].sort((a, b) => new Date(b) - new Date(a));
+  // Normalise each completion to a UTC calendar day string "YYYY-MM-DD"
+  const uniqueDays = [
+    ...new Set(completions.map((c) => c.slice(0, 10))),
+  ].sort((a, b) => (a > b ? -1 : 1)); // descending
 
   let streak = 1;
-  for (let i = 1; i < sorted.length; i++) {
-    const prev = new Date(sorted[i - 1]);
-    const curr = new Date(sorted[i]);
+  for (let i = 1; i < uniqueDays.length; i++) {
+    const prev = new Date(uniqueDays[i - 1] + "T00:00:00Z");
+    const curr = new Date(uniqueDays[i] + "T00:00:00Z");
+    const diffDays = Math.round((prev - curr) / (1000 * 60 * 60 * 24));
 
-    // BUG #2 — raw diff without stripping time; timezone can skew this
-    const diffMs = prev - curr;
-    const diffDays = diffMs / (1000 * 60 * 60 * 24);
-
-    if (diffDays >= 0.8 && diffDays <= 1.2) {
+    if (diffDays === 1) {
       streak++;
-    } else if (diffDays < 0.8) {
-      // Same day — continue (but this heuristic is fragile)
-      continue;
     } else {
       break;
     }
