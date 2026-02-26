@@ -2,7 +2,7 @@ name: Triage Agent
 
 on:
   issues:
-    types: [opened]
+    types: [opened, labeled]
 
 permissions:
   issues: write
@@ -13,9 +13,13 @@ jobs:
     runs-on: ubuntu-latest
 
     if: >
-      !contains(github.event.issue.labels.*.name, 'high priority') &&
-      !contains(github.event.issue.labels.*.name, 'medium priority') &&
-      !contains(github.event.issue.labels.*.name, 'low priority')
+      (github.event.action == 'opened' &&
+       !contains(github.event.issue.labels.*.name, 'high priority') &&
+       !contains(github.event.issue.labels.*.name, 'medium priority') &&
+       !contains(github.event.issue.labels.*.name, 'low priority'))
+      ||
+      (github.event.action == 'labeled' &&
+       github.event.label.name == 'needs-triage')
 
     steps:
       - name: Checkout repo
