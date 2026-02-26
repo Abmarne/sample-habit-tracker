@@ -123,9 +123,8 @@ function getLabels(a) {
   if (a.type === "bug") labels.push("bug");
   else if (a.type === "feature") labels.push("enhancement");
   else if (a.type === "chore") labels.push("chore");
-  if (a.priority === "high") labels.push("high priority");
-  else if (a.priority === "medium") labels.push("medium priority");
-  else labels.push("low priority");
+  const pMap = { "critical": "p0", "high": "p1", "medium-high": "p2", "medium": "p3", "low": "p4", "trivial": "p5" };
+  labels.push(pMap[a.priority] || "p3");
   labels.push(a.ready_for_implementation ? "ready-for-impl" : "needs-info");
   return labels;
 }
