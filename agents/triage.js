@@ -129,6 +129,18 @@ function getLabels(a) {
   return labels;
 }
 
+
+async function assignCopilot() {
+  try {
+    await githubRequest(`/repos/${REPO}/issues/${ISSUE_NUMBER}/assignees`, "POST", {
+      assignees: ["copilot"]
+    });
+    console.log("Assigned Copilot to issue");
+  } catch (err) {
+    console.log("Could not assign Copilot (may need different permissions):", err.message);
+  }
+}
+
 async function main() {
   console.log(`Triage Agent processing issue #${ISSUE_NUMBER}: ${ISSUE_TITLE}`);
   const analysis = await analyseIssue();
@@ -138,6 +150,10 @@ async function main() {
   const labels = getLabels(analysis);
   await addLabels(labels);
   console.log("Applied labels:", labels.join(", "));
+  const autoAssign = ["p3", "p4", "p5"];
+  if (labels.some(l => autoAssign.includes(l))) {
+    await assignCopilot();
+  }
 }
 
 main().catch((err) => { console.error("Triage Agent failed:", err); process.exit(1); });
