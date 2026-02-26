@@ -2,10 +2,6 @@
  * Habit Tracker - Core Module
  *
  * Known issues for agent testing:
- * - BUG #1: markDone() does not prevent double-completion on the same day,
- *           so calling it twice awards points twice.
- * - BUG #2: Streak calculation uses bare Date() comparisons without
- *           normalising to UTC midnight, causing timezone-dependent failures.
  * - BUG #3: All data lives in a plain JS object (in-memory). Restarting the
  *           server loses everything.
  */
