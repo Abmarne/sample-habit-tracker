@@ -62,7 +62,7 @@ Set ready_for_implementation to true if clear and actionable, false if it needs 
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "anthropic/claude-sonnet-4-20250514",
+      model: "anthropic/claude-sonnet-4",
       max_tokens: 1024,
       messages: [
         { role: "system", content: systemPrompt },
