@@ -37,8 +37,15 @@ function renderHabits(habits) {
     btn.className = "done-btn";
     btn.textContent = "Done ✓";
 
-    // BUG #1 surface: no disable or debounce — double-click fires twice
-    btn.addEventListener("click", () => markDone(h.id));
+    // Disable button immediately to prevent double-click duplicate submissions
+    btn.addEventListener("click", async () => {
+      btn.disabled = true;
+      try {
+        await markDone(h.id);
+      } catch (e) {
+        btn.disabled = false;
+      }
+    });
 
     li.appendChild(btn);
     listEl.appendChild(li);
@@ -64,7 +71,10 @@ async function addHabit() {
 }
 
 async function markDone(id) {
-  await fetch(`${API}/${id}/done`, { method: "POST" });
+  const res = await fetch(`${API}/${id}/done`, { method: "POST" });
+  if (!res.ok) {
+    throw new Error(`Request failed: ${res.status}`);
+  }
   fetchAndRender();
 }
 
