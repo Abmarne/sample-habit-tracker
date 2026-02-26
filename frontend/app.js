@@ -71,7 +71,10 @@ async function addHabit() {
 }
 
 async function markDone(id) {
-  await fetch(`${API}/${id}/done`, { method: "POST" });
+  const res = await fetch(`${API}/${id}/done`, { method: "POST" });
+  if (!res.ok) {
+    throw new Error(`Request failed: ${res.status}`);
+  }
   fetchAndRender();
 }
 

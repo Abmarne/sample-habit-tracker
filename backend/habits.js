@@ -46,7 +46,8 @@ function markDone(id) {
     throw new Error("Habit not found");
   }
 
-  const todayStr = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+  const now = new Date();
+  const todayStr = now.toISOString().slice(0, 10); // "YYYY-MM-DD"
 
   // Deduplicate: skip if already completed today
   const alreadyDone = habit.completions.some(
@@ -56,7 +57,7 @@ function markDone(id) {
     return habit;
   }
 
-  habit.completions.push(new Date().toISOString());
+  habit.completions.push(now.toISOString());
   habit.points += 10;
   habit.streak = calculateStreak(habit.completions);
 
@@ -73,7 +74,7 @@ function calculateStreak(completions) {
   // Normalise each completion to a UTC calendar day string "YYYY-MM-DD"
   const uniqueDays = [
     ...new Set(completions.map((c) => c.slice(0, 10))),
-  ].sort((a, b) => (a > b ? -1 : 1)); // descending
+  ].sort((a, b) => b.localeCompare(a)); // descending
 
   let streak = 1;
   for (let i = 1; i < uniqueDays.length; i++) {
