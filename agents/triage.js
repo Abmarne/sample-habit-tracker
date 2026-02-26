@@ -130,7 +130,6 @@ function getLabels(a) {
 }
 
 
-}
 
 async function main() {
   console.log(`Triage Agent processing issue #${ISSUE_NUMBER}: ${ISSUE_TITLE}`);
