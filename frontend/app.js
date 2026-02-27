@@ -48,6 +48,15 @@ function renderHabits(habits) {
     });
 
     li.appendChild(btn);
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "delete-btn";
+    deleteBtn.textContent = "Delete 🗑";
+    deleteBtn.addEventListener("click", async () => {
+      await deleteHabit(h.id);
+    });
+
+    li.appendChild(deleteBtn);
     listEl.appendChild(li);
   });
 
@@ -72,6 +81,14 @@ async function addHabit() {
 
 async function markDone(id) {
   const res = await fetch(`${API}/${id}/done`, { method: "POST" });
+  if (!res.ok) {
+    throw new Error(`Request failed: ${res.status}`);
+  }
+  fetchAndRender();
+}
+
+async function deleteHabit(id) {
+  const res = await fetch(`${API}/${id}`, { method: "DELETE" });
   if (!res.ok) {
     throw new Error(`Request failed: ${res.status}`);
   }

@@ -88,6 +88,14 @@ function calculateStreak(completions) {
   return streak;
 }
 
+function deleteHabit(id) {
+  if (!habits[id]) {
+    return null;
+  }
+  delete habits[id];
+  return true;
+}
+
 function resetAll() {
   for (const key of Object.keys(habits)) {
     delete habits[key];
@@ -101,5 +109,6 @@ module.exports = {
   getHabit,
   markDone,
   calculateStreak,
+  deleteHabit,
   resetAll,
 };

@@ -4,6 +4,7 @@ const {
   getHabit,
   markDone,
   calculateStreak,
+  deleteHabit,
   resetAll,
 } = require("../backend/habits");
 
@@ -77,6 +78,38 @@ describe("markDone", () => {
     // Expected: still 10 points (deduplicated)
     // Actual:   20 points (bug)
     expect(h.points).toBe(10);
+  });
+});
+
+// ─── deleteHabit ─────────────────────────────────────────────────────────────
+
+describe("deleteHabit", () => {
+  test("deletes a habit successfully", () => {
+    const h = addHabit("Run");
+    expect(getHabits()).toHaveLength(1);
+    
+    const result = deleteHabit(h.id);
+    expect(result).toBe(true);
+    expect(getHabits()).toHaveLength(0);
+  });
+
+  test("returns null for unknown habit", () => {
+    expect(deleteHabit("999")).toBeNull();
+  });
+
+  test("deleted habit points no longer count toward total", () => {
+    const h = addHabit("Meditate");
+    markDone(h.id);
+    expect(h.points).toBe(10);
+    
+    deleteHabit(h.id);
+    
+    const habits = getHabits();
+    let totalPoints = 0;
+    habits.forEach(habit => {
+      totalPoints += habit.points;
+    });
+    expect(totalPoints).toBe(0);
   });
 });
 

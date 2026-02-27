@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
-const { addHabit, getHabits, getHabit, markDone } = require("./habits");
+const { addHabit, getHabits, getHabit, markDone, deleteHabit } = require("./habits");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -42,6 +42,15 @@ app.post("/api/habits/:id/done", (req, res) => {
   } catch (err) {
     res.status(404).json({ error: err.message });
   }
+});
+
+// Delete a habit
+app.delete("/api/habits/:id", (req, res) => {
+  const deleted = deleteHabit(req.params.id);
+  if (!deleted) {
+    return res.status(404).json({ error: "Habit not found" });
+  }
+  res.status(204).send();
 });
 
 // ── Start ───────────────────────────────────────────────────────────────────
